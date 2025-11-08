@@ -1,5 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import '../styles/doctor-dashboard.scss';
+import PrescribeForm from './doctor/PrescribeForm.jsx';
+import CalendarPane from './doctor/CalendarPane.jsx';
+import AppointmentsPane from './doctor/AppointmentsPane.jsx';
 
 export default function DoctorDashboard() {
   const [profileOpen, setProfileOpen] = useState(false);
@@ -32,6 +35,53 @@ export default function DoctorDashboard() {
       { time: '15:00', patient: 'Omkar Kulkarni', reason: 'Routine check' }
     ]
   }), []);
+
+  // Appointment requests and upcoming appointments (dummy data)
+  const [appointmentRequests, setAppointmentRequests] = useState([
+    { id: crypto.randomUUID(), date: '2025-11-11', time: '10:30', patient: 'Arjun Mehta', reason: 'Back pain' },
+    { id: crypto.randomUUID(), date: '2025-11-11', time: '12:00', patient: 'Sanya Kapoor', reason: 'Fever' },
+    { id: crypto.randomUUID(), date: '2025-11-12', time: '09:15', patient: 'Ishaan Rao', reason: 'Follow-up' }
+  ]);
+  const [upcoming, setUpcoming] = useState([
+    { id: crypto.randomUUID(), date: '2025-11-10', time: '16:00', patient: 'Neha Iyer', reason: 'Allergy' },
+    { id: crypto.randomUUID(), date: '2025-11-11', time: '09:00', patient: 'Kabir Khan', reason: 'Annual physical' }
+  ]);
+
+  const [inquiryOpenId, setInquiryOpenId] = useState(null);
+  const [inquiryDrafts, setInquiryDrafts] = useState({});
+
+  function compareDateTime(a, b) {
+    return new Date(`${a.date}T${a.time}`) - new Date(`${b.date}T${b.time}`);
+  }
+  function formatDate(d) {
+    const dt = new Date(d);
+    return dt.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: '2-digit' });
+  }
+
+  function acceptRequest(id) {
+    setAppointmentRequests(reqs => {
+      const idx = reqs.findIndex(r => r.id === id);
+      if (idx === -1) return reqs;
+      const req = reqs[idx];
+      setUpcoming(prev => [...prev, req].sort(compareDateTime));
+      return [...reqs.slice(0, idx), ...reqs.slice(idx + 1)];
+    });
+  }
+  function rejectRequest(id) {
+    setAppointmentRequests(reqs => reqs.filter(r => r.id !== id));
+  }
+  function toggleInquiry(id) {
+    setInquiryOpenId(curr => (curr === id ? null : id));
+  }
+  function sendInquiry(id) {
+    const message = inquiryDrafts[id]?.trim();
+    console.log('Inquiry to patient', { requestId: id, message });
+    setInquiryOpenId(null);
+    setInquiryDrafts(d => {
+      const { [id]: _, ...rest } = d;
+      return rest;
+    });
+  }
 
   // Build calendar days for current month
   const calendarDays = useMemo(() => {
@@ -115,56 +165,28 @@ export default function DoctorDashboard() {
             </section>
           )}
           {active === 'calendar' && (
-            <section className="calendar-pane">
-              <div className="calendar-header">
-                <h2>Calendar</h2>
-                <p>Appointments heatmap for this month</p>
-              </div>
-              <div className="calendar-and-list">
-                <div className="mini-calendar">
-                  <div className="week-labels">
-                    {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(w => <div key={w}>{w}</div>)}
-                  </div>
-                  <div className="calendar-grid">
-                    {calendarDays.map((entry, idx) => entry ? (
-                      <button
-                        key={entry.iso}
-                        className={"day-cell" + (entry.iso === selectedDate ? ' selected' : '')}
-                        style={{ background: heatColor(entry.count) }}
-                        onClick={() => setSelectedDate(entry.iso)}
-                        title={entry.count ? `${entry.count} appointment${entry.count>1?'s':''}` : 'No appointments'}
-                      >
-                        <span className="day-number">{entry.day}</span>
-                        {entry.count > 0 && <span className="count">{entry.count}</span>}
-                      </button>
-                    ) : (
-                      <div key={idx} className="day-cell blank" />
-                    ))}
-                  </div>
-                </div>
-                <div className="day-appointments">
-                  <h3>{selectedDate}</h3>
-                  {selectedAppointments.length === 0 && <p className="empty">No appointments scheduled.</p>}
-                  <ul className="appointments-list">
-                    {selectedAppointments.map((a,i) => (
-                      <li key={i} className="appt-row">
-                        <div className="time">{a.time}</div>
-                        <div className="details">
-                          <div className="patient">{a.patient}</div>
-                          {a.reason && <div className="reason">{a.reason}</div>}
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </section>
+            <CalendarPane
+              calendarDays={calendarDays}
+              selectedDate={selectedDate}
+              setSelectedDate={setSelectedDate}
+              selectedAppointments={selectedAppointments}
+              heatColor={heatColor}
+            />
           )}
           {active === 'appointments' && (
-            <section>
-              <h2>Appointments</h2>
-              <p>Manage patient appointments and statuses.</p>
-            </section>
+            <AppointmentsPane
+              appointmentRequests={appointmentRequests}
+              upcoming={upcoming}
+              inquiryOpenId={inquiryOpenId}
+              inquiryDrafts={inquiryDrafts}
+              formatDate={formatDate}
+              compareDateTime={compareDateTime}
+              rejectRequest={rejectRequest}
+              acceptRequest={acceptRequest}
+              toggleInquiry={toggleInquiry}
+              sendInquiry={sendInquiry}
+              onInquiryDraftChange={(id, value) => setInquiryDrafts(d => ({ ...d, [id]: value }))}
+            />
           )}
         </main>
       </div>
@@ -172,117 +194,4 @@ export default function DoctorDashboard() {
   );
 }
 
-// =============================
-// Prescribe Form Component
-// =============================
-function PrescribeForm() {
-  const [patientName, setPatientName] = useState('');
-  const [age, setAge] = useState('');
-  const [sex, setSex] = useState('');
-  const [notes, setNotes] = useState('');
-  const [medicines, setMedicines] = useState([
-    { id: crypto.randomUUID(), name: '', instructions: '' }
-  ]);
-  const [submitted, setSubmitted] = useState(false);
-
-  function updateMedicine(id, field, value) {
-    setMedicines(meds => meds.map(m => m.id === id ? { ...m, [field]: value } : m));
-  }
-
-  function addMedicine() {
-    setMedicines(meds => [...meds, { id: crypto.randomUUID(), name: '', instructions: '' }]);
-  }
-
-  function removeMedicine(id) {
-    setMedicines(meds => meds.filter(m => m.id !== id));
-  }
-
-  function resetForm() {
-    setPatientName('');
-    setAge('');
-    setSex('');
-    setNotes('');
-    setMedicines([{ id: crypto.randomUUID(), name: '', instructions: '' }]);
-    setSubmitted(false);
-  }
-
-  function handleSubmit(e) {
-    e.preventDefault();
-    // lightweight validation
-    if (!patientName.trim()) {
-      alert('Please enter patient name');
-      return;
-    }
-    setSubmitted(true);
-    const payload = {
-      patientName,
-      age: age ? parseInt(age,10) : null,
-      sex,
-      medicines: medicines.filter(m => m.name.trim()),
-      notes
-    };
-    console.log('Prescription submitted', payload);
-  }
-
-  return (
-    <form className="prescribe-form" onSubmit={handleSubmit}>
-      <div className="form-grid">
-        <div className="field">
-          <label>Patient Name *</label>
-          <input value={patientName} onChange={e => setPatientName(e.target.value)} placeholder="e.g. Jane Doe" required />
-        </div>
-        <div className="field">
-          <label>Age</label>
-          <input type="number" min="0" max="130" value={age} onChange={e => setAge(e.target.value)} placeholder="e.g. 42" />
-        </div>
-        <div className="field">
-          <label>Sex</label>
-          <select value={sex} onChange={e => setSex(e.target.value)}>
-            <option value="">Select</option>
-            <option value="female">Female</option>
-            <option value="male">Male</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-      </div>
-
-      <div className="medicines-section">
-        <div className="section-head">
-          <h3>Medicines</h3>
-          <button type="button" className="add-btn" onClick={addMedicine}>+ Add Medicine</button>
-        </div>
-        {medicines.map((m, idx) => (
-          <div key={m.id} className="medicine-row">
-            <div className="field">
-              <label>Name</label>
-              <input value={m.name} onChange={e => updateMedicine(m.id,'name', e.target.value)} placeholder="Medicine name" />
-            </div>
-            <div className="field">
-              <label>Instructions</label>
-              <input value={m.instructions} onChange={e => updateMedicine(m.id,'instructions', e.target.value)} placeholder="Dosage / frequency" />
-            </div>
-            {medicines.length > 1 && (
-              <button type="button" className="remove-btn" onClick={() => removeMedicine(m.id)} aria-label="Remove">✕</button>
-            )}
-          </div>
-        ))}
-      </div>
-
-      <div className="field">
-        <label>Other Actions / Notes</label>
-        <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={4} placeholder="Diet changes, tests to schedule, follow-up timeframe..." />
-      </div>
-
-      <div className="form-actions">
-        <button type="submit" className="submit-btn">Submit Prescription</button>
-        <button type="button" className="secondary-btn" onClick={resetForm}>Reset</button>
-      </div>
-
-      {submitted && (
-        <div className="success-banner" role="status">
-          <strong>Prescription saved (mock)</strong>. Check console for payload.
-        </div>
-      )}
-    </form>
-  );
-}
+// Child components moved to ./doctor/* for clarity
