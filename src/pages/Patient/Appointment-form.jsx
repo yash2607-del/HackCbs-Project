@@ -1,44 +1,9 @@
 import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import DashboardLayout from "@/components/layouts/DashboardLayout";
+import { useLocation } from "react-router-dom";
 import "./Appointment-form.css";
 
 export default function AppointmentForm() {
   const location = useLocation();
-  const navigate = useNavigate();
-  const [activeKey, setActiveKey] = useState("appointment");
-  
-  const sidebarItems = [
-    { key: "dashboard", label: "Dashboard" },
-    { key: "appointment", label: "Book Appointment" },
-    { key: "prescriptions", label: "My Prescriptions" },
-    { key: "history", label: "Appointment History" },
-    { key: "profile", label: "Profile" },
-  ];
-
-  const handleSidebarChange = (key) => {
-    setActiveKey(key);
-    // Navigate based on sidebar selection
-    switch (key) {
-      case "dashboard":
-        navigate("/patients");
-        break;
-      case "appointment":
-        navigate("/appointment-form");
-        break;
-      case "prescriptions":
-        // Add route when available
-        break;
-      case "history":
-        // Add route when available
-        break;
-      case "profile":
-        // Add route when available
-        break;
-      default:
-        break;
-    }
-  };
 
   const [formData, setFormData] = useState({
     doctorName: location.state?.doctorName || "",
@@ -120,23 +85,16 @@ export default function AppointmentForm() {
       handleReset();
     }, 1500);
   };
-
   return (
-    <DashboardLayout
-      brand="MediChain"
-      sidebarItems={sidebarItems}
-      activeKey={activeKey}
-      onChange={handleSidebarChange}
-    >
-      <div className="prescribe-form-page">
-        <div className="prescribe-form-container">
-          {/* Header */}
-          <div className="form-header">
-            <h1>Book Appointment</h1>
-            <p>Create an appointment request. All fields optional, but doctor name recommended.</p>
-          </div>
+    <div className="prescribe-form-page">
+      <div className="prescribe-form-container">
+        {/* Header */}
+        <div className="form-header">
+          <h1>Book Appointment</h1>
+          <p>Create an appointment request. All fields optional, but doctor name recommended.</p>
+        </div>
 
-          <form onSubmit={handleSubmit} className="prescribe-form">
+        <form onSubmit={handleSubmit} className="prescribe-form">
           {/* Patient Information Section */}
           <div className="form-section">
             <h2 className="section-title">Appointment Information</h2>
@@ -290,9 +248,8 @@ export default function AppointmentForm() {
               Reset
             </button>
           </div>
-          </form>
-        </div>
+        </form>
       </div>
-    </DashboardLayout>
+    </div>
   );
 }
