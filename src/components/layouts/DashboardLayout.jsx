@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export default function DashboardLayout({
   brand = 'MedTrack',
@@ -8,6 +9,18 @@ export default function DashboardLayout({
   children,
 }) {
   const [open, setOpen] = React.useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const goToProfile = () => {
+    const p = location.pathname || '';
+    if (p.startsWith('/doctor')) return navigate('/profile/doctor');
+    if (p.startsWith('/pharmacy')) return navigate('/profile/pharmacy');
+    if (p.startsWith('/patient')) return navigate('/profile/patient');
+    return navigate('/profile');
+  };
+
+  const doLogout = () => navigate('/');
 
   useEffect(() => {
     document.body.classList.add('dashboard-mode');
@@ -23,9 +36,9 @@ export default function DashboardLayout({
           <span className="profile-name">Dr. Jane Doe ▾</span>
           {open && (
             <div className="dropdown" role="menu" onClick={e => e.stopPropagation()}>
-              <button>Profile</button>
-              <button>Settings</button>
-              <button>Logout</button>
+              <button onClick={() => { setOpen(false); goToProfile(); }}>Profile</button>
+              <button onClick={() => { setOpen(false); navigate('/profile'); }}>Settings</button>
+              <button onClick={() => { setOpen(false); doLogout(); }}>Logout</button>
             </div>
           )}
         </div>
