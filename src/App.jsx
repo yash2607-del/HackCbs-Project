@@ -8,7 +8,7 @@ import Landing from './components/Landing.jsx'
 import DoctorDashboard from './components/DoctorDashboard.jsx'
 import RoleAuth from './components/RoleAuth.jsx'
 import FindADoctor from './pages/Patient/FindADoxtor.jsx'
-
+import AppointmentForm from './pages/Patient/Appointment-form.jsx'
 export default function App() {
   return (
     <BrowserRouter>
@@ -23,6 +23,9 @@ export default function App() {
             <Route path="/pharmacies" element={<Pharmacies />} />
             <Route path="/auth/:role" element={<RoleAuth />} />
             <Route path="/appointment" element={<FindADoctor />} />
+            <Route path="/appointment-form" element={<AppointmentForm />} />
+
+
 
             {/* Legacy or shorthand route: redirect to /doctors */}
             <Route path="/doctor" element={<Navigate to="/doctors" replace />} />

@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import "./FindADoxtor.css";
 
 export default function FindADoctor() {
+  const navigate = useNavigate();
   const [speciality, setSpeciality] = useState("");
   const [doctor, setDoctor] = useState("");
 
@@ -340,7 +342,15 @@ export default function FindADoctor() {
                         >
                           View Full Profile
                         </a>
-                        <Button className="w-full bg-red-600 text-white hover:bg-red-700 rounded-lg py-3 font-semibold transition-all duration-200 shadow-md hover:shadow-lg">
+                        <Button 
+                          className="w-full bg-red-600 text-white hover:bg-red-700 rounded-lg py-3 font-semibold transition-all duration-200 shadow-md hover:shadow-lg"
+                          onClick={() => navigate("/appointment-form", { 
+                            state: { 
+                              doctorName: doc.name, 
+                              speciality: doc.specialization 
+                            } 
+                          })}
+                        >
                           Book an Appointment
                         </Button>
                       </CardContent>
