@@ -11,6 +11,8 @@ const ROLE_LABELS = {
 }
 
 export default function RoleAuth() {
+  // Central API URL builder using Vite env
+  const apiUrl = (path) => new URL(path, import.meta.env.VITE_API_BASE_URL || '/').toString()
   const { role } = useParams()
   const validRole = ['doctor', 'patient', 'pharmacy'].includes(role) ? role : null
   const [mode, setMode] = useState('login')
@@ -141,7 +143,7 @@ export default function RoleAuth() {
     e.preventDefault()
     setMessage('')
     try {
-      const res = await fetch('http://localhost:5000/api/auth/login', {
+      const res = await fetch(apiUrl('api/auth/login'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(loginData)
@@ -150,8 +152,10 @@ export default function RoleAuth() {
       if (!res.ok) { setMessage(data.error || 'Login failed'); return }
       localStorage.setItem('token', data.token)
       localStorage.setItem('session', JSON.stringify({ role: data.user.role, user: data.user }))
-      setMessage(`Welcome back, ${data.user.profile?.name || data.user.email}! Redirecting...`)
-      setTimeout(()=> navigate(`/profile/${validRole}`), 600)
+  setMessage(`Welcome back, ${data.user.profile?.name || data.user.email}! Redirecting to your dashboard...`)
+  // Redirect to the appropriate dashboard route for the user's role
+  const dest = data?.user?.role ? `/${data.user.role}` : `/profile/${validRole}`
+  setTimeout(() => navigate(dest), 600)
     } catch (err) {
       console.error(err)
       setMessage('Network error during login')
@@ -171,7 +175,7 @@ export default function RoleAuth() {
     if (!email || !password) { setMessage('Email & password required'); return }
 
     try {
-      const res = await fetch('http://localhost:5000/api/auth/register', {
+      const res = await fetch(apiUrl('api/auth/register'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ role: validRole, email, password, profile: payload.profile })
