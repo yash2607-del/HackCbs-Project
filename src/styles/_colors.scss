@@ -1,11 +1,57 @@
-// Color palette (global)
-$color-1: #CDF5FD;
-$color-2: #89CFF3;
-$color-3: #00A9FF;
+// =========================
+// 🌈 GLOBAL COLOR PALETTE
+// =========================
 
-// Also expose CSS variables for ease of use in JS-in-CSS or plain CSS
+// Primary brand colors
+$color-1: #CDF5FD; // Light Sky Blue — for subtle backgrounds / highlights
+$color-2: #89CFF3; // Medium Blue — for secondary elements / hover states
+$color-3: #00A9FF; // Bright Blue — for primary buttons, links, accents
+
+// Complimentary neutrals
+$color-bg-light: #F9FBFC;   // Lightest background
+$color-bg-dark: #0A192F;    // Deep navy background for dark mode or headers
+$color-text-dark: #0F172A;  // Deep slate — main body text
+$color-text-light: #FFFFFF; // For dark backgrounds
+$color-border: #DDE4EA;     // Subtle borders / dividers
+
+// Accent and semantic colors
+$color-success: #2ECC71;    // Green for success
+$color-warning: #F4C430;    // Warm yellow for warnings
+$color-error: #E74C3C;      // Red for errors
+$color-info: #00A9FF;       // Same as brand blue — info highlights
+
+// Shadows and overlays
+$shadow-light: rgba(0, 0, 0, 0.05);
+$shadow-medium: rgba(0, 0, 0, 0.15);
+$overlay-dark: rgba(10, 25, 47, 0.8);
+
+// =========================
+// 🔄 CSS VARIABLE EXPORTS
+// =========================
+
 :root {
+  /* Brand blues */
   --color-1: #CDF5FD;
   --color-2: #89CFF3;
   --color-3: #00A9FF;
+
+  /* Backgrounds */
+  --color-bg-light: #F9FBFC;
+  --color-bg-dark: #0A192F;
+
+  /* Text */
+  --color-text-dark: #0F172A;
+  --color-text-light: #FFFFFF;
+
+  /* Borders & shadows */
+  --color-border: #DDE4EA;
+  --shadow-light: rgba(0, 0, 0, 0.05);
+  --shadow-medium: rgba(0, 0, 0, 0.15);
+  --overlay-dark: rgba(10, 25, 47, 0.8);
+
+  /* Semantic colors */
+  --color-success: #2ECC71;
+  --color-warning: #F4C430;
+  --color-error: #E74C3C;
+  --color-info: #00A9FF;
 }
