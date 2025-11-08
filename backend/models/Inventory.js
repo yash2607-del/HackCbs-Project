@@ -7,6 +7,7 @@ const inventorySchema = new mongoose.Schema({
   name: String,
   batch: String,
   expiry: String,
+  manufacturer: String,
   quantity: Number,
   price: Number,
   drugCode: String

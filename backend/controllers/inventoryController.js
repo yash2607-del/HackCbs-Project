@@ -8,10 +8,13 @@ const dbConnected = () => mongoose.connection && mongoose.connection.readyState 
 
 export const getInventory = async (req, res) => {
   try {
+    const { pharmacyId } = req.query || {};
     if (dbConnected()) {
-      const items = await Inventory.find();
+      const query = pharmacyId ? { pharmacyId } : {};
+      const items = await Inventory.find(query);
       return res.json(items);
     }
+    if (pharmacyId) return res.json(mockInventory.filter(i => i.pharmacyId === pharmacyId));
     return res.json(mockInventory);
   } catch (err) {
     console.error('getInventory err', err);

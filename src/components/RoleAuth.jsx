@@ -1,16 +1,9 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useParams } from 'react-router-dom'
 import TagsInput from './TagsInput.jsx'
 import MapPicker from './MapPicker.jsx'
-
-// Simple in-memory store fallback (could be replaced by API later)
-const memoryDB = {
-  doctor: [],
-  patient: [],
-  pharmacy: []
-}
-
+ 
 const ROLE_LABELS = {
   doctor: 'Doctor',
   patient: 'Patient',
@@ -20,15 +13,12 @@ const ROLE_LABELS = {
 export default function RoleAuth() {
   const { role } = useParams()
   const validRole = ['doctor', 'patient', 'pharmacy'].includes(role) ? role : null
-  const [mode, setMode] = useState('login') // 'login' | 'signup'
+  const [mode, setMode] = useState('login')
   const [message, setMessage] = useState('')
-
-  // Shared login fields
   const [loginData, setLoginData] = useState({ email: '', password: '' })
 
-  // Signup data per role
   const [patientData, setPatientData] = useState({
-    email: '', password: '', phone: '', name: '', age: '', weight: '', height: '', conditions: [], sex: ''
+    email: '', password: '', phone: '', name: '', age: '', weight: '', height: '', conditions: [], sex: '', location: null
   })
   const [doctorData, setDoctorData] = useState({
     name: '', regNumber: '', email: '', password: '', phone: '', education: '', specialties: [], experienceYears: '', location: null
@@ -37,87 +27,165 @@ export default function RoleAuth() {
     shopName: '', email: '', password: '', phone: '', location: null
   })
 
+  const navigate = useNavigate()
+  const [animating, setAnimating] = useState(false)
+
   if (!validRole) {
     return <div className="auth-page"><h2>Invalid role</h2><p>Unknown role: {role}</p></div>
   }
 
-  const label = ROLE_LABELS[validRole]
-  const navigate = useNavigate()
-  const [animating, setAnimating] = useState(false)
+  // Auto-detect location on signup: only for patient. Doctor and Pharmacy will detect on button click.
+  useEffect(() => {
+    if (mode === 'signup' && validRole === 'patient') {
+      if (patientData.location) return
+      tryDetectLocation('patient')
+    }
+  }, [mode, validRole])
 
-  // Role information content for the left/right panel
+  // Reverse geocode helper
+  const fetchAddress = async (lat, lng) => {
+    try {
+      const proxyUrl = `/api/places/reverse?lat=${lat}&lng=${lng}`
+      const proxyRes = await fetch(proxyUrl)
+      if (proxyRes.ok) {
+        const data = await proxyRes.json()
+        const addr = data?.results?.[0]?.formatted_address
+        if (addr) return addr
+      }
+      // fallback to Nominatim
+      const nomRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`)
+      if (nomRes.ok) {
+        const nomData = await nomRes.json()
+        return nomData.display_name || null
+      }
+      return null
+    } catch (err) {
+      console.debug('Reverse geocode failed', err)
+      return null
+    }
+  }
+
+  // Effect: fetch addresses when lat/lng changes
+  useEffect(() => {
+    const updateAddress = async (data, setter) => {
+      if (data?.location && !data.location.address) {
+        const { lat, lng } = data.location
+        if (lat && lng) {
+          const addr = await fetchAddress(lat, lng)
+          if (addr) setter(d => ({ ...d, location: { ...d.location, address: addr } }))
+        }
+      }
+    }
+    updateAddress(doctorData, setDoctorData)
+    updateAddress(pharmacyData, setPharmacyData)
+    updateAddress(patientData, setPatientData)
+  }, [doctorData.location, pharmacyData.location, patientData.location])
+
+  // Try detect location
+  const tryDetectLocation = async (target) => {
+    setMessage('')
+    if (!navigator?.geolocation) {
+      setMessage('Geolocation is not supported by this browser')
+      return
+    }
+    setMessage('Detecting location...')
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude }
+        if (target === 'doctor') setDoctorData(d => ({ ...d, location: loc }))
+        if (target === 'pharmacy') setPharmacyData(p => ({ ...p, location: loc }))
+        if (target === 'patient') setPatientData(p => ({ ...p, location: loc }))
+        setMessage('Location detected')
+      },
+      async (err) => {
+        console.debug('Geolocation error', err)
+        setMessage('Unable to get location. Trying IP-based lookup...')
+        try {
+          const ipRes = await fetch('https://ipapi.co/json/')
+          if (ipRes.ok) {
+            const ipData = await ipRes.json()
+            const lat = parseFloat(ipData.latitude)
+            const lng = parseFloat(ipData.longitude)
+            if (lat && lng) {
+              const loc = { lat, lng }
+              if (target === 'doctor') setDoctorData(d => ({ ...d, location: loc }))
+              if (target === 'pharmacy') setPharmacyData(p => ({ ...p, location: loc }))
+              if (target === 'patient') setPatientData(p => ({ ...p, location: loc }))
+              setMessage('Location approximated from IP address')
+            }
+          }
+        } catch (ipErr) {
+          console.debug('IP lookup failed', ipErr)
+          setMessage('Could not detect location automatically')
+        }
+      },
+      { timeout: 8000 }
+    )
+  }
+
+  // Role info for left panel
   const roleInfo = useMemo(() => {
     switch (validRole) {
       case 'patient':
-        return {
-          title: 'Welcome, Patient',
-          subtitle: 'Your health, your control',
-          points: [
-            'Access verified prescriptions securely',
-            'Find medicines nearby on the map',
-            'Get AI-assisted guidance to the right doctor'
-          ]
-        }
+        return { title: 'Welcome, Patient', subtitle: 'Your health, your control', points: ['Access verified prescriptions securely','Find medicines nearby on the map','Get AI-assisted guidance to the right doctor'] }
       case 'doctor':
-        return {
-          title: 'Welcome, Doctor',
-          subtitle: 'Streamlined and secure care',
-          points: [
-            'Create tamper-proof prescriptions on-chain',
-            'View patient history with confidence',
-            'Build trust with verifiable records'
-          ]
-        }
+        return { title: 'Welcome, Doctor', subtitle: 'Streamlined and secure care', points: ['Create tamper-proof prescriptions on-chain','View patient history with confidence','Build trust with verifiable records'] }
       case 'pharmacy':
-        return {
-          title: 'Welcome, Pharmacy',
-          subtitle: 'Reliable inventory and verification',
-          points: [
-            'Verify prescriptions via blockchain',
-            'Manage real-time stock with ease',
-            'Serve patients faster with confidence'
-          ]
-        }
+        return { title: 'Welcome, Pharmacy', subtitle: 'Reliable inventory and verification', points: ['Verify prescriptions via blockchain','Manage real-time stock with ease','Serve patients faster with confidence'] }
       default:
         return { title: '', subtitle: '', points: [] }
     }
   }, [validRole])
 
-  const handleLoginSubmit = (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault()
-    const users = memoryDB[validRole]
-    const found = users.find(u => u.email === loginData.email && u.password === loginData.password)
-    if (found) {
-      // Persist simple session and redirect
-      const session = { role: validRole, user: found }
-      localStorage.setItem('session', JSON.stringify(session))
-      setMessage(`Welcome back, ${found.name || found.shopName || 'user'}! Redirecting...`) 
+    setMessage('')
+    try {
+      const res = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(loginData)
+      })
+      const data = await res.json()
+      if (!res.ok) { setMessage(data.error || 'Login failed'); return }
+      localStorage.setItem('token', data.token)
+      localStorage.setItem('session', JSON.stringify({ role: data.user.role, user: data.user }))
+      setMessage(`Welcome back, ${data.user.profile?.name || data.user.email}! Redirecting...`)
       setTimeout(()=> navigate(`/profile/${validRole}`), 600)
-    } else {
-      setMessage('Invalid credentials or user not registered.')
+    } catch (err) {
+      console.error(err)
+      setMessage('Network error during login')
     }
   }
 
-  const saveUser = (data) => {
-    memoryDB[validRole].push(data)
-  }
-
-  const handleSignupSubmit = (e) => {
+  const handleSignupSubmit = async (e) => {
     e.preventDefault()
-    let data
-    if (validRole === 'patient') data = patientData
-    if (validRole === 'doctor') data = doctorData
-    if (validRole === 'pharmacy') data = pharmacyData
-    // Simple validation example
-    if (!data.email || !data.password) {
-      setMessage('Email & password are required.')
-      return
+    setMessage('')
+    let payload = {}
+    if (validRole === 'patient') payload = { profile: patientData }
+    if (validRole === 'doctor') payload = { profile: doctorData }
+    if (validRole === 'pharmacy') payload = { profile: pharmacyData }
+
+    const email = payload.profile?.email
+    const password = payload.profile?.password
+    if (!email || !password) { setMessage('Email & password required'); return }
+
+    try {
+      const res = await fetch('http://localhost:5000/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role: validRole, email, password, profile: payload.profile })
+      })
+      const data = await res.json()
+      if (!res.ok) { setMessage(data.error || 'Registration failed'); return }
+      localStorage.setItem('token', data.token)
+      localStorage.setItem('session', JSON.stringify({ role: data.user.role, user: data.user }))
+      setMessage(`${ROLE_LABELS[validRole]} registered successfully! Redirecting...`)
+      setTimeout(()=> navigate(`/profile/${validRole}`), 800)
+    } catch (err) {
+      console.error(err)
+      setMessage('Network error during registration')
     }
-    saveUser(data)
-    setMessage(`${label} registered successfully! Redirecting to profile...`)
-    const session = { role: validRole, user: data }
-    localStorage.setItem('session', JSON.stringify(session))
-    setTimeout(()=> navigate(`/profile/${validRole}`), 800)
   }
 
   const renderSignup = () => {
@@ -142,7 +210,9 @@ export default function RoleAuth() {
                 </select>
               </div>
             </div>
-            <TagsInput label="Pre-existing Conditions" value={patientData.conditions} onChange={(v)=>setPatientData({...patientData,conditions:v})} />
+            <TagsInput label="Pre-existing Conditions" value={patientData.conditions} onChange={v=>setPatientData({...patientData,conditions:v})} />
+            <MapPicker label="Location" value={patientData.location} onChange={v=>setPatientData({...patientData,location:v})} height={220} />
+            {patientData.location?.address && <div style={{marginTop:8}}><strong>Address:</strong> {patientData.location.address}</div>}
             <button className="btn primary" type="submit">Sign Up as Patient</button>
           </form>
         )
@@ -158,8 +228,9 @@ export default function RoleAuth() {
               <div className="form-field"><label>Education</label><input value={doctorData.education} onChange={e=>setDoctorData({...doctorData,education:e.target.value})} /></div>
               <div className="form-field"><label>Years of Experience</label><input type="number" value={doctorData.experienceYears} onChange={e=>setDoctorData({...doctorData,experienceYears:e.target.value})} /></div>
             </div>
-            <TagsInput label="Specialties" value={doctorData.specialties} onChange={(v)=>setDoctorData({...doctorData,specialties:v})} />
-            <MapPicker label="Location" value={doctorData.location} onChange={(v)=>setDoctorData({...doctorData,location:v})} height={220} />
+            <TagsInput label="Specialties" value={doctorData.specialties} onChange={v=>setDoctorData({...doctorData,specialties:v})} />
+            <MapPicker label="Location" value={doctorData.location} onChange={v=>setDoctorData({...doctorData,location:v})} height={220} />
+            {doctorData.location?.address && <div style={{marginTop:8}}><strong>Address:</strong> {doctorData.location.address}</div>}
             <button className="btn primary" type="submit">Sign Up as Doctor</button>
           </form>
         )
@@ -172,64 +243,48 @@ export default function RoleAuth() {
               <div className="form-field"><label>Password</label><input type="password" value={pharmacyData.password} onChange={e=>setPharmacyData({...pharmacyData,password:e.target.value})} required /></div>
               <div className="form-field"><label>Phone</label><input value={pharmacyData.phone} onChange={e=>setPharmacyData({...pharmacyData,phone:e.target.value})} /></div>
             </div>
-            <MapPicker label="Location" value={pharmacyData.location} onChange={(v)=>setPharmacyData({...pharmacyData,location:v})} height={220} />
+            <MapPicker label="Location" value={pharmacyData.location} onChange={v=>setPharmacyData({...pharmacyData,location:v})} height={220} />
+            {pharmacyData.location?.address && <div style={{marginTop:8}}><strong>Address:</strong> {pharmacyData.location.address}</div>}
             <button className="btn primary" type="submit">Sign Up as Pharmacy</button>
           </form>
         )
-      default:
-        return null
+      default: return null
     }
   }
 
   return (
-    
     <div className="auth-page">
       <div className="auth-role-switch">
         <button className={validRole==='doctor'?'active':''} onClick={()=>navigate('/auth/doctor')}>Doctor</button>
         <button className={validRole==='patient'?'active':''} onClick={()=>navigate('/auth/patient')}>Patient</button>
         <button className={validRole==='pharmacy'?'active':''} onClick={()=>navigate('/auth/pharmacy')}>Pharmacy</button>
       </div>
-      <div className={`auth-card split ${mode === 'signup' ? 'signup-active' : ''}`}>
-        {/* Info Panel */}
+      <div className={`auth-card split ${mode==='signup'?'signup-active':''}`}>
         <div className="panel info-panel">
-          <div className={`info-inner ${animating ? 'anim' : ''}`}>
+          <div className={`info-inner ${animating?'anim':''}`}>
             <h3 className="info-title">{roleInfo.title}</h3>
             <p className="info-subtitle">{roleInfo.subtitle}</p>
-            <ul className="info-points">
-              {roleInfo.points.map((p) => (
-                <li key={p}>{p}</li>
-              ))}
-            </ul>
+            <ul className="info-points">{roleInfo.points.map(p=><li key={p}>{p}</li>)}</ul>
             <div className="info-cta">
               <span className="muted">Mode</span>
               <div className="mode-toggle">
-                <button className={mode==='login'?'active':''} onClick={()=>{ if(mode!=='login'){ setAnimating(true); setTimeout(()=>{ setMode('login') }, 220); setTimeout(()=>setAnimating(false),520) } }}>Login</button>
-                <button className={mode==='signup'?'active':''} onClick={()=>{ if(mode!=='signup'){ setAnimating(true); setTimeout(()=>{ setMode('signup') }, 220); setTimeout(()=>setAnimating(false),520) } }}>Signup</button>
+                <button className={mode==='login'?'active':''} onClick={()=>{if(mode!=='login'){setAnimating(true); setTimeout(()=>setMode('login'),220); setTimeout(()=>setAnimating(false),520)}}}>Login</button>
+                <button className={mode==='signup'?'active':''} onClick={()=>{if(mode!=='signup'){setAnimating(true); setTimeout(()=>setMode('signup'),220); setTimeout(()=>setAnimating(false),520)}}}>Signup</button>
               </div>
             </div>
           </div>
         </div>
-
-        {/* Form Panel */}
         <div className="panel form-panel">
-          <div className={`form-inner ${animating ? 'anim' : ''}`}>
-            <h2>{label} {mode === 'login' ? 'Login' : 'Signup'}</h2>
+          <div className={`form-inner ${animating?'anim':''}`}>
+            <h2>{ROLE_LABELS[validRole]} {mode==='login'?'Login':'Signup'}</h2>
             {message && <div className="auth-message">{message}</div>}
-            {mode === 'login' ? (
+            {mode==='login' ? (
               <form onSubmit={handleLoginSubmit} className="auth-form">
-                <div className="form-field">
-                  <label>Email</label>
-                  <input type="email" value={loginData.email} onChange={e=>setLoginData({...loginData,email:e.target.value})} required />
-                </div>
-                <div className="form-field">
-                  <label>Password</label>
-                  <input type="password" value={loginData.password} onChange={e=>setLoginData({...loginData,password:e.target.value})} required />
-                </div>
+                <div className="form-field"><label>Email</label><input type="email" value={loginData.email} onChange={e=>setLoginData({...loginData,email:e.target.value})} required /></div>
+                <div className="form-field"><label>Password</label><input type="password" value={loginData.password} onChange={e=>setLoginData({...loginData,password:e.target.value})} required /></div>
                 <button className="btn primary" type="submit">Login</button>
               </form>
-            ) : (
-              renderSignup()
-            )}
+            ) : renderSignup()}
           </div>
         </div>
       </div>
