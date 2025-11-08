@@ -1,10 +1,33 @@
 import React, { useState } from 'react'
 import '../styles/doctor-dashboard.scss'
 import { FaPills, FaCalendarAlt, FaClipboardList } from 'react-icons/fa'
+import { useNavigate, useLocation } from 'react-router-dom'
 
 export default function DashboardLayout({ brand = 'MedTrack', menuItems = [], active, setActive, children }) {
-  const [collapsed, setCollapsed] = useState(false)
+  const [collapsed, setCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem('dashboardCollapsed') === 'true'
+    } catch (e) { return false }
+  })
   const [profileOpen, setProfileOpen] = useState(false)
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  const goToProfile = () => {
+    // Decide profile route from current location (dashboard context)
+    const p = location.pathname || ''
+    if (p.startsWith('/doctor')) return navigate('/profile/doctor')
+    if (p.startsWith('/pharmacy')) return navigate('/profile/pharmacy')
+    if (p.startsWith('/patient')) return navigate('/profile/patient')
+    // fallback
+    return navigate('/profile')
+  }
+
+  const doLogout = () => {
+    // Placeholder for logout logic (clear auth etc.)
+    // For now just navigate to home
+    navigate('/')
+  }
 
   return (
     <div className={`dashboard-shell ${collapsed ? 'collapsed' : ''}`}>
@@ -15,7 +38,13 @@ export default function DashboardLayout({ brand = 'MedTrack', menuItems = [], ac
             aria-expanded={!collapsed}
             aria-controls="dashboard-sidebar"
             className="hamburger"
-            onClick={() => setCollapsed(c => !c)}
+            onClick={() => {
+              setCollapsed(c => {
+                const next = !c
+                try { localStorage.setItem('dashboardCollapsed', next ? 'true' : 'false') } catch (e) {}
+                return next
+              })
+            }}
           >
             <span />
             <span />
@@ -29,9 +58,9 @@ export default function DashboardLayout({ brand = 'MedTrack', menuItems = [], ac
           {!collapsed && <span className="profile-name">Dr. Jane Doe ▾</span>}
           {profileOpen && (
             <div className="dropdown" role="menu">
-              <button>Profile</button>
-              <button>Settings</button>
-              <button>Logout</button>
+              <button onClick={() => { setProfileOpen(false); goToProfile(); }}>Profile</button>
+              <button onClick={() => { setProfileOpen(false); navigate('/profile'); }}>Settings</button>
+              <button onClick={() => { setProfileOpen(false); doLogout(); }}>Logout</button>
             </div>
           )}
         </div>

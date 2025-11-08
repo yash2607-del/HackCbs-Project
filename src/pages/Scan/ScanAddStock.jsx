@@ -128,7 +128,7 @@ export default function ScanAddStock({ addMedicine, pharmacyId }) {
 
   return (
     <div>
-      <h3 style={{ marginBottom: 8 }}>📷 Scan & Add Medicine</h3>
+      <h3 style={{ marginBottom: 8 }}>Scan & Add Medicine</h3>
       <p style={{ marginTop: 0, color: '#64748b' }}>Use the scanner to quickly add medicines to your inventory. You can edit details before adding.</p>
 
       <div style={styles.container}>

@@ -14,6 +14,7 @@ import PatientProfile from './pages/profile/PatientProfile.jsx'
 import PharmacyProfile from './pages/profile/PharmacyProfile.jsx'
 import FindADoctor from './pages/Patient/FindADoxtor.jsx'
 import AppointmentForm from './pages/Patient/Appointment-form.jsx'
+import PrescriptionTable from './pages/Patient/Prescription-table.jsx'
 export default function App() {
   return (
     <BrowserRouter>
@@ -34,6 +35,9 @@ export default function App() {
             <Route path="/profile/pharmacy" element={<PharmacyProfile />} />
             <Route path="/appointment" element={<FindADoctor />} />
             <Route path="/appointment-form" element={<AppointmentForm />} />
+            <Route path="/prescription-table" element={<PrescriptionTable />} />
+
+
 
 
 

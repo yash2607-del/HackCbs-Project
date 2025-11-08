@@ -30,7 +30,7 @@ export default function Inventory({ inventory = [], addMedicine }) {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
         <div>
-          <h3 style={{ marginBottom: 8 }}>📦 Inventory</h3>
+          <h3 style={{ marginBottom: 8 }}>Inventory</h3>
           <p style={{ marginTop: 0, color: '#64748b' }}>View and search the current stock.</p>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
