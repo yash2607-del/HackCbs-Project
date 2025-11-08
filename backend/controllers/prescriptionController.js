@@ -1,5 +1,6 @@
 import Prescription from '../models/Prescription.js'
 import { hashPrescription } from '../utils/hashPrescription.js'
+import { addHashToBlockchain } from '../utils/blockchain.js'
 
 function validatePrescription(body) {
   if (!body) return 'Missing request body'
@@ -43,7 +44,20 @@ export async function addPrescription(req, res) {
       dataHash: hash,
       hashVersion: 1
     })
-    return res.status(201).json({ ok: true, id: created._id, dataHash: created.dataHash })
+    // Anchor hash on-chain (best-effort) and persist tx hash
+    let chainTxHash = null
+    try {
+      chainTxHash = await addHashToBlockchain(created.dataHash)
+      await Prescription.findByIdAndUpdate(created._id, {
+        chainTxHash,
+        chainNetwork: 'sepolia',
+        chainConfirmed: true
+      })
+    } catch (chainErr) {
+      console.error('Blockchain anchoring failed:', chainErr)
+    }
+
+    return res.status(201).json({ ok: true, id: created._id, dataHash: created.dataHash, chainTxHash })
   } catch (err) {
     console.error('addPrescription error:', err)
     return res.status(500).json({ error: 'Failed to add prescription' })
