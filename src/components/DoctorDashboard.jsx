@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import DashboardLayout from './DashboardLayout.jsx'
 import '../styles/doctor-dashboard.scss';
 import PrescribeForm from './doctor/PrescribeForm.jsx';
 import CalendarPane from './doctor/CalendarPane.jsx';
@@ -127,69 +128,44 @@ export default function DoctorDashboard() {
 
   return (
     <div className="doctor-dashboard">
-      <nav className="topbar">
-        <div className="brand">MedTrack</div>
-        <div className="profile" onClick={() => setProfileOpen(o => !o)}>
-          <div className="avatar" aria-label="Profile" />
-          <span className="profile-name">Dr. Jane Doe ▾</span>
-          {profileOpen && (
-            <div className="dropdown" role="menu">
-              <button>Profile</button>
-              <button>Settings</button>
-              <button>Logout</button>
-            </div>
-          )}
-        </div>
-      </nav>
-      <div className="layout">
-        <aside className="sidebar">
-          <ul>
-            {menuItems.map(item => (
-              <li key={item.key}>
-                <button
-                  className={item.key === active ? 'active' : ''}
-                  onClick={() => setActive(item.key)}
-                >
-                  {item.label}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </aside>
-        <main className="content">
-          {active === 'prescribe' && (
-            <section className="prescribe-pane">
-              <h2>Prescribe</h2>
-              <p>Create a prescription for a patient. All fields optional, but patient name recommended.</p>
-              <PrescribeForm />
-            </section>
-          )}
-          {active === 'calendar' && (
-            <CalendarPane
-              calendarDays={calendarDays}
-              selectedDate={selectedDate}
-              setSelectedDate={setSelectedDate}
-              selectedAppointments={selectedAppointments}
-              heatColor={heatColor}
-            />
-          )}
-          {active === 'appointments' && (
-            <AppointmentsPane
-              appointmentRequests={appointmentRequests}
-              upcoming={upcoming}
-              inquiryOpenId={inquiryOpenId}
-              inquiryDrafts={inquiryDrafts}
-              formatDate={formatDate}
-              compareDateTime={compareDateTime}
-              rejectRequest={rejectRequest}
-              acceptRequest={acceptRequest}
-              toggleInquiry={toggleInquiry}
-              sendInquiry={sendInquiry}
-              onInquiryDraftChange={(id, value) => setInquiryDrafts(d => ({ ...d, [id]: value }))}
-            />
-          )}
-        </main>
-      </div>
+      <DashboardLayout
+        brand="MedTrack"
+        menuItems={menuItems}
+        active={active}
+        setActive={setActive}
+      >
+        {active === 'prescribe' && (
+          <section className="prescribe-pane">
+            <h2>Prescribe</h2>
+            <p>Create a prescription for a patient. All fields optional, but patient name recommended.</p>
+            <PrescribeForm />
+          </section>
+        )}
+        {active === 'calendar' && (
+          <CalendarPane
+            calendarDays={calendarDays}
+            selectedDate={selectedDate}
+            setSelectedDate={setSelectedDate}
+            selectedAppointments={selectedAppointments}
+            heatColor={heatColor}
+          />
+        )}
+        {active === 'appointments' && (
+          <AppointmentsPane
+            appointmentRequests={appointmentRequests}
+            upcoming={upcoming}
+            inquiryOpenId={inquiryOpenId}
+            inquiryDrafts={inquiryDrafts}
+            formatDate={formatDate}
+            compareDateTime={compareDateTime}
+            rejectRequest={rejectRequest}
+            acceptRequest={acceptRequest}
+            toggleInquiry={toggleInquiry}
+            sendInquiry={sendInquiry}
+            onInquiryDraftChange={(id, value) => setInquiryDrafts(d => ({ ...d, [id]: value }))}
+          />
+        )}
+      </DashboardLayout>
     </div>
   );
 }

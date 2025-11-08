@@ -14,7 +14,7 @@
   align-items: center;
   justify-content: space-between;
   height: 64px;
-  padding: 0 1rem;
+  padding: 0 2rem 0 1rem; /* keep right padding but remove left gap so hamburger sits at left edge */
   background: var(--color-bg-dark);
   color: var(--color-text-light);
   box-shadow: 0 2px 12px var(--shadow-medium);
@@ -70,11 +70,100 @@
   }
 }
 
+/* Dashboard shell modifiers when sidebar is collapsed */
+.dashboard-shell .hamburger {
+  background: transparent;
+  border: none;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  cursor: pointer;
+}
+.dashboard-shell .hamburger span {
+  width: 20px;
+  height: 2px;
+  background: var(--color-text-light);
+  display: block;
+}
+
+/* Animate hamburger into X when menu is expanded (not collapsed) */
+.dashboard-shell .hamburger span {
+  transition: transform .22s cubic-bezier(.2,.9,.25,1), opacity .18s ease;
+}
+.dashboard-shell:not(.collapsed) .hamburger span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.dashboard-shell:not(.collapsed) .hamburger span:nth-child(2) { opacity: 0; }
+.dashboard-shell:not(.collapsed) .hamburger span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+.dashboard-shell .left-group { display:flex; align-items:center; gap:12px }
+
+.dashboard-shell {
+  --sidebar-width: 240px;
+}
+
+.dashboard-shell .layout {
+  display: grid;
+  grid-template-columns: auto 1fr; /* sidebar width controlled by .sidebar width */
+  gap: 1rem;
+  padding: 0; /* remove padding so sidebar flushes to top/left */
+}
+
+.dashboard-shell.collapsed { --sidebar-width: 72px; }
+
+.sidebar.joint {
+  background: var(--color-bg-dark);
+  color: var(--color-text-light);
+  border: none;
+  border-radius: 0 0 12px 12px;
+  box-shadow: none;
+  height: calc(100vh - 64px);
+  position: sticky;
+  top: 64px;
+  padding-top: 1rem;
+  width: var(--sidebar-width);
+  transition: width .32s cubic-bezier(.2,.9,.25,1);
+  overflow: hidden;
+}
+
+.sidebar.joint ul { padding: 0 0.5rem }
+.sidebar.joint button {
+  color: var(--color-text-light);
+  background: transparent;
+  border: none;
+  padding: 0.65rem 0.75rem;
+  border-radius: 8px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sidebar.joint button .short {
+  display: inline-block;
+  width: 28px;
+  text-align: center;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity .22s ease, transform .28s ease;
+}
+.sidebar.joint button .label {
+  display: inline-block;
+  white-space: nowrap;
+  opacity: 1;
+  transition: opacity .18s ease, transform .22s ease, max-width .28s ease;
+}
+.dashboard-shell.collapsed .sidebar.joint button .short { opacity: 1; transform: translateX(0); }
+.dashboard-shell.collapsed .sidebar.joint button .label { opacity: 0; transform: translateX(-6px); }
+.sidebar.joint button.active { background: rgba(255,255,255,0.06); color: var(--color-3); box-shadow:none }
+.sidebar.joint.collapsed { padding-top: 0.6rem }
+
+/* Ensure content area fills remaining space */
+.dashboard-shell .content { padding: 1rem 1.25rem }
+
 .layout {
   display: grid;
-  grid-template-columns: 240px 1fr;
+  grid-template-columns: auto 1fr;
   gap: 1rem;
-  padding: 1rem;
+  padding: 0;
 }
 
 .sidebar {

@@ -22,8 +22,6 @@ export default function App() {
             <Route path="/pharmacies" element={<Pharmacies />} />
             <Route path="/auth/:role" element={<RoleAuth />} />
 
-            {/* Legacy or shorthand route: redirect to /doctors */}
-            <Route path="/doctor" element={<Navigate to="/doctors" replace />} />
 
             {/* 404 */}
             <Route path="*" element={<NotFound />} />
