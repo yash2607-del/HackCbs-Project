@@ -17,6 +17,7 @@ import FindADoctor from './pages/Patient/FindADoctor.jsx'
 import AppointmentForm from './pages/Patient/Appointment-form.jsx'
 import PrescriptionTable from './pages/Patient/Prescription-table.jsx'
 import PatientAppointments from './pages/Patient/PatientAppointments.jsx'
+import ChatbotPage from './pages/Chatbot/ChatbotPage.jsx'
 export default function App() {
   return (
     <BrowserRouter>
@@ -40,6 +41,7 @@ export default function App() {
             <Route path="/appointment-form" element={<AppointmentForm />} />
             <Route path="/prescription-table" element={<PrescriptionTable />} />
             <Route path="/patient-appointments" element={<PatientAppointments />} />
+            <Route path="/chatbot" element={<ChatbotPage />} />
             {/* 404 */}
             <Route path="*" element={<NotFound />} />
           </Routes>
