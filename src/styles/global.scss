@@ -9,6 +9,13 @@ body {
   padding: 2rem;
 }
 
+/* Dashboard pages use the brand palette and remove outer padding */
+body.dashboard-mode {
+  background: var(--color-bg-light);
+  color: var(--color-text-dark);
+  padding: 0; /* remove the top spacing above the dark bar */
+}
+
 .app-header {
   text-align: center;
   margin-bottom: 2rem;
