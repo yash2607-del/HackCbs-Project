@@ -6,6 +6,7 @@ import Doctors from './pages/Doctors.jsx'
 import Patients from './pages/Patients.jsx'
 import Pharmacies from './pages/Pharmacies.jsx'
 import NotFound from './pages/NotFound.jsx'
+import DoctorDashboard from './components/DoctorDashboard.jsx'
 
 function HomeLayout() {
   return (
@@ -20,6 +21,7 @@ function HomeLayout() {
         <main>
           <Routes>
             <Route path="/" element={<Landing />} />
+            <Route path="/doctor" element={<DoctorDashboard />} />
             <Route path="/doctors" element={<Doctors />} />
             <Route path="/patients" element={<Patients />} />
             <Route path="/pharmacies" element={<Pharmacies />} />
