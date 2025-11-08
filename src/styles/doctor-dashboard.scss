@@ -285,8 +285,20 @@
 
   .form-grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(180px, 1fr));
+    /* single row for patient info: name (wider), email, age, sex */
+    grid-template-columns: 2fr 2fr 1fr 1fr;
     gap: 0.75rem;
+    align-items: end;
+
+    @media (max-width: 880px) {
+      /* stack into two columns on medium screens */
+      grid-template-columns: repeat(2, minmax(160px, 1fr));
+    }
+
+    @media (max-width: 520px) {
+      /* single column on small screens */
+      grid-template-columns: 1fr;
+    }
   }
 
   .field {
@@ -327,10 +339,28 @@
 
   .medicine-row {
     display: grid;
-    grid-template-columns: 1fr 2fr auto;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr auto;
     gap: 0.75rem;
     margin-top: 0.5rem;
     align-items: end;
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      
+      label {
+        font-size: 0.875rem;
+        margin-bottom: 0.25rem;
+        font-weight: 500;
+      }
+      
+      input, select {
+        padding: 0.5rem;
+        border: 1px solid var(--color-border);
+        border-radius: 6px;
+        font-size: 0.875rem;
+      }
+    }
 
     .remove-btn {
       background: transparent;
@@ -339,6 +369,18 @@
       border-radius: 8px;
       padding: 0.5rem 0.7rem;
       cursor: pointer;
+      height: fit-content;
+      margin-top: 1.5rem; // Align with input fields
+    }
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+      
+      .remove-btn {
+        margin-top: 0.5rem;
+        justify-self: end;
+      }
     }
   }
 
@@ -360,6 +402,12 @@
     border-radius: 10px;
     font-weight: 700;
     cursor: pointer;
+  }
+
+  /* Simple keyframes for inline spinner used in submit button */
+  @keyframes prescribe-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
   }
 
   .success-banner {

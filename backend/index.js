@@ -7,6 +7,7 @@ import cors from "cors";
 import inventoryRouter from "./routers/inventoryRouter.js";
 import billingRouter from "./routers/billingRouter.js";
 import pharmacyRouter from "./routers/pharmacyRouter.js";
+import prescriptionRouter from "./routers/prescriptionRouter.js";
 
 const app = express();
 app.use(cors());
@@ -21,6 +22,7 @@ mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
 app.use("/api/inventory", inventoryRouter);
 app.use("/api/billing", billingRouter);
 app.use("/api/pharmacy", pharmacyRouter);
+app.use("/api/prescriptions", prescriptionRouter);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
