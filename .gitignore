@@ -1,5 +1,42 @@
+## Node / build
 node_modules/
 dist/
+build/
+
+## Editor / OS
 .vscode/
-.env
+.idea/
 .DS_Store
+
+## Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+## Environment / secrets (ignore all env files in repo and subfolders)
+# Keep examples (eg. .env.example) tracked
+**/.env
+**/.env.*
+!**/.env.example
+
+## Certificates / keys
+*.pem
+*.key
+*.crt
+*.p12
+certs/
+secrets/
+credentials.json
+
+## Misc caches
+.cache/
+.parcel-cache/
+coverage/
+.next/
+out/
+
+# Ignore local environment overrides
+.env.local
+*.local
+
