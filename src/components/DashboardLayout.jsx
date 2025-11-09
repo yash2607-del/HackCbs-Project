@@ -54,10 +54,7 @@ export default function DashboardLayout({ brand = 'MediChain', menuItems = [], a
     return navigate('/profile')
   }
 
-  const doLogout = () => {
-    // Prefer centralized logout route (also clears auth)
-    navigate('/logout')
-  }
+  const doLogout = () => navigate('/logout')
 
   return (
     <div className={`dashboard-shell ${collapsed ? 'collapsed' : ''}`}>
@@ -88,8 +85,6 @@ export default function DashboardLayout({ brand = 'MediChain', menuItems = [], a
           {!collapsed && <span className="profile-name">{getUserDisplayName()} ▾</span>}
           {profileOpen && (
             <div className="dropdown" role="menu">
-              <button onClick={() => { setProfileOpen(false); goToProfile(); }}>Profile</button>
-              <button onClick={() => { setProfileOpen(false); navigate('/profile'); }}>Settings</button>
               <button onClick={() => { setProfileOpen(false); doLogout(); }}>Logout</button>
             </div>
           )}

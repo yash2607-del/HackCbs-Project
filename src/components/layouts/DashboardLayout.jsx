@@ -20,7 +20,8 @@ export default function DashboardLayout({
     return navigate('/profile');
   };
 
-  const doLogout = () => navigate('/');
+  // Centralized logout route
+  const doLogout = () => navigate('/logout');
 
   useEffect(() => {
     document.body.classList.add('dashboard-mode');
@@ -36,8 +37,6 @@ export default function DashboardLayout({
           <span className="profile-name">Dr. Jane Doe ▾</span>
           {open && (
             <div className="dropdown" role="menu" onClick={e => e.stopPropagation()}>
-              <button onClick={() => { setOpen(false); goToProfile(); }}>Profile</button>
-              <button onClick={() => { setOpen(false); navigate('/profile'); }}>Settings</button>
               <button onClick={() => { setOpen(false); doLogout(); }}>Logout</button>
             </div>
           )}
