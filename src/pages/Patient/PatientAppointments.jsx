@@ -27,7 +27,8 @@ export default function PatientAppointments() {
         return;
       }
 
-      const response = await fetch(`http://localhost:5000/api/appointments?patientId=${patientId}`);
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+      const response = await fetch(`${baseUrl}/api/appointments?patientId=${patientId}`);
       const data = await response.json();
 
       if (!response.ok) {
@@ -57,7 +58,8 @@ export default function PatientAppointments() {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/appointments/${appointment._id}/status`, {
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+      const response = await fetch(`${baseUrl}/api/appointments/${appointment._id}/status`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

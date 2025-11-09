@@ -26,8 +26,8 @@ export default function PrescriptionTable() {
       setLoading(true);
       setError('');
       try {
-        const base = import.meta.env.VITE_API_BASE_URL || '/';
-        const url = new URL(`api/prescriptions?email=${encodeURIComponent(e)}`, base).toString();
+        const base = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+        const url = `${base}/api/prescriptions?email=${encodeURIComponent(e)}`;
         const res = await fetch(url);
         const text = await res.text();
         let data = {};
@@ -48,8 +48,8 @@ export default function PrescriptionTable() {
     setDetailLoading(true);
     setShowModal(true);
     try {
-      const base = import.meta.env.VITE_API_BASE_URL || '/';
-      const url = new URL(`api/prescriptions/${encodeURIComponent(prescription._id)}`, base).toString();
+      const base = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+      const url = `${base}/api/prescriptions/${encodeURIComponent(prescription._id)}`;
       const res = await fetch(url);
       const text = await res.text();
       let data = {};

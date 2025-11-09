@@ -4,9 +4,11 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 // We'll provide a small fallback chain and a model listing helper.
 
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-if (!apiKey) console.warn('VITE_GEMINI_API_KEY is missing');
+if (!apiKey) {
+  console.error('❌ VITE_GEMINI_API_KEY is missing! Add it to your .env file.');
+}
 
-const genAI = new GoogleGenerativeAI(apiKey);
+const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
 
 // If you want to force a single model globally, set this. Leave empty string to allow fallback detection.
 export const FORCED_MODEL = 'gemini-2.5-flash';
@@ -50,6 +52,9 @@ export async function resolveModel(requested) {
 }
 
 export async function getModel(model) {
+  if (!genAI) {
+    throw new Error('Gemini API not initialized. Please check your VITE_GEMINI_API_KEY in .env file.');
+  }
   const id = await resolveModel(model);
   return genAI.getGenerativeModel({ model: id });
 }

@@ -2,12 +2,13 @@ import React from 'react';
 import { FaPaperPlane, FaStop, FaTrash, FaRobot, FaUser } from 'react-icons/fa';
 import { streamText } from '../../lib/geminiClient';
 import { FORCED_MODEL } from '../../lib/geminiClient';
+import './Chatbot.css';
 
 export default function Chatbot() {
   const [messages, setMessages] = React.useState([
     { 
       role: 'assistant', 
-      text: 'Hello! I\'m your health assistant. I can help answer general health questions and provide information. How can I assist you today?',
+      text: 'Hello! I\'m your AI health assistant. I can help answer general health questions, provide wellness tips, and offer medical information. How can I assist you today?',
       timestamp: new Date()
     }
   ]);
@@ -31,10 +32,17 @@ export default function Chatbot() {
     setMessages([
       { 
         role: 'assistant', 
-        text: 'Chat cleared! How can I help you today?',
+        text: 'Chat cleared! I\'m ready to help with your health questions.',
         timestamp: new Date()
       }
     ]);
+  }
+
+  function formatTime(date) {
+    return new Date(date).toLocaleTimeString('en-US', { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
   }
 
   async function onSend(e) {
@@ -47,12 +55,16 @@ export default function Chatbot() {
     setInput('');
     setLoading(true);
 
-    // Build a simple prompt from history
-    const prompt = messages
-      .concat({ role: 'user', text })
+    // Build a better prompt with system context
+    const systemContext = `You are a helpful AI health assistant. Provide clear, accurate, and empathetic health information. Keep responses concise (2-3 paragraphs). Always remind users to consult healthcare professionals for medical advice.`;
+    
+    const conversationHistory = messages
       .filter(m => m.role !== 'system')
-      .map(m => `${m.role.toUpperCase()}: ${m.text}`)
-      .join('\n') + '\nASSISTANT:';
+      .slice(-6) // Keep last 6 messages for context
+      .map(m => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.text}`)
+      .join('\n');
+    
+    const prompt = `${systemContext}\n\n${conversationHistory}\nUser: ${text}\nAssistant:`;
 
     buffer.current = '';
     stopFlag.current.stopped = false;
@@ -81,10 +93,14 @@ export default function Chatbot() {
       );
     } catch (err) {
       console.error('Gemini error:', err);
+      const errorMessage = err.message?.includes('API') || err.message?.includes('key')
+        ? 'API key not configured. Please add VITE_GEMINI_API_KEY to your .env file and restart the server.'
+        : `Error: ${err.message || 'Failed to get response. Please try again.'}`;
+      
       setMessages(m =>
         m.map((msg, i) =>
           i === assistantIndex
-            ? { ...msg, text: `(error getting response)` }
+            ? { ...msg, text: errorMessage }
             : msg
         )
       );
@@ -108,68 +124,74 @@ export default function Chatbot() {
   }
 
   return (
-    <section className="appointments-pane">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem' }}>
-        <h2 style={{ margin: 0 }}>Chatbot</h2>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+    <div className="chatbot-container">
+      {/* Header with Clear Button */}
+             <div className="chatbot-actions">
           {loading && (
-            <button type="button" className="btn secondary" onClick={onStop}>Stop</button>
+            <button type="button" className="btn-header" onClick={onStop}>
+              <FaStop /> Stop
+            </button>
           )}
-          <button type="button" className="btn secondary" onClick={clearChat}>Clear</button>
+          <button type="button" className="btn-header" onClick={clearChat}>
+            <FaTrash /> Clear
+          </button>
         </div>
-      </div>
-      <p className="hint">Information only; not a diagnosis.</p>
+    
 
-      <div style={{
-        background: '#fff',
-        border: '1px solid var(--color-border)',
-        borderRadius: 12,
-        padding: '0.9rem',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '0.75rem',
-        height: '60vh' // fixed height so footer input is always visible
-      }}>
-        <div
-          ref={listRef}
-          style={{ overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', gap: '0.6rem' }}
-        >
-          {messages.filter(m => m.role !== 'system').map((m, i) => (
-            <div key={i}
-              style={{
-                alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start',
-                background: m.role === 'user' ? 'var(--color-3)' : 'var(--color-bg-light)',
-                color: 'var(--color-text-dark)',
-                padding: '0.6rem 0.8rem',
-                borderRadius: 10,
-                maxWidth: '70%',
-                whiteSpace: 'pre-wrap',
-                boxShadow: '0 2px 6px var(--shadow-light)'
-              }}>
-              {m.text || (loading && m.role === 'assistant' ? '...' : '')}
+      {/* Messages */}
+      <div className="chatbot-messages" ref={listRef}>
+        {messages.filter(m => m.role !== 'system').map((m, i) => (
+          <div key={i} className={`message-bubble ${m.role}`}>
+            <div className={`message-avatar ${m.role}`}>
+              {m.role === 'user' ? <FaUser /> : <FaRobot />}
             </div>
-          ))}
-        </div>
+            <div className="message-content">
+              <div className="message-text">
+                {m.text || (loading && m.role === 'assistant' && i === messages.length - 1 ? (
+                  <div className="typing-indicator">
+                    <div className="typing-dot"></div>
+                    <div className="typing-dot"></div>
+                    <div className="typing-dot"></div>
+                  </div>
+                ) : '')}
+              </div>
+              <div className="message-timestamp">
+                {formatTime(m.timestamp)}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
 
-        <form onSubmit={onSend} style={{ display: 'flex', gap: '0.5rem' }}>
+      {/* Input Area */}
+      <div className="chatbot-input-area">
+        <form onSubmit={onSend} className="chatbot-input-form">
           <textarea
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={onKeyDown}
             disabled={loading && !stopFlag.current.stopped}
-            placeholder="Ask something..."
+            placeholder="Type your health question here..."
             rows={2}
-            style={{
-              flex: 1,
-              padding: '0.6rem 0.8rem',
-              border: '1px solid var(--color-border)',
-              borderRadius: 8,
-              resize: 'none'
-            }}
+            className="chatbot-textarea"
           />
-          <button type="submit" disabled={loading} className="btn primary">Send</button>
+          <button 
+            type="submit" 
+            disabled={loading || !input.trim()} 
+            className="btn-send"
+          >
+            {loading ? (
+              <>
+                <FaStop /> Stop
+              </>
+            ) : (
+              <>
+                <FaPaperPlane /> Send
+              </>
+            )}
+          </button>
         </form>
       </div>
-    </section>
+    </div>
   );
 }

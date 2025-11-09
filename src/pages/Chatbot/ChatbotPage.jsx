@@ -1,24 +1,15 @@
-import React, { useState } from 'react'
-import DashboardLayout from '../../components/DashboardLayout.jsx'
+import React from 'react'
 import Chatbot from '../../components/chat/Chatbot.jsx'
 
 export default function ChatbotPage() {
-  const [active, setActive] = useState('chatbot')
-
-  const menuItems = [
-    { key: 'chatbot', label: 'Chatbot' },
-  ]
-
   return (
-    <div className="chatbot-page">
-      <DashboardLayout
-        brand="MediChain"
-        menuItems={menuItems}
-        active={active}
-        setActive={setActive}
-      >
-        <Chatbot />
-      </DashboardLayout>
+    <div className="chatbot-page" style={{ 
+      height: '100vh', 
+      display: 'flex', 
+      flexDirection: 'column',
+      overflow: 'hidden'
+    }}>
+      <Chatbot />
     </div>
   )
 }
