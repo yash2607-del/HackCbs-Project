@@ -52,6 +52,24 @@ export const me = async (req, res) => {
   }
 };
 
+// Public: get a user's profile/meta by user id (no auth required)
+export const getUserProfile = async (req, res) => {
+  try {
+    // Now lookup by email (required path parameter)
+    const { email } = req.params;
+    if (!email || typeof email !== 'string' || !email.includes('@')) {
+      return res.status(400).json({ error: 'Missing or invalid email parameter' });
+    }
+    const user = await User.findOne({ email }).select('profile role email createdAt');
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    // Return only the stored profile and basic meta
+    return res.json({ id: user._id, role: user.role, email: user.email, profile: user.profile, createdAt: user.createdAt });
+  } catch (err) {
+    console.error('getUserProfile err', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+}
+
 // Update the authenticated user's location in profile
 export const updateLocation = async (req, res) => {
   try {

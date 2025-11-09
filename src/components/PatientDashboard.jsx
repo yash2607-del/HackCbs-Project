@@ -10,7 +10,7 @@ import '../styles/chatbot-popup.scss'
 import { FaUserMd, FaCalendarPlus, FaCalendarCheck, FaPrescriptionBottle } from 'react-icons/fa'
 
 export default function PatientDashboard() {
-  const [active, setActive] = useState('find-doctor')
+  const [active, setActive] = useState('appointments')
 
   const menuItems = [
     { key: 'find-doctor', label: 'Find Doctor', icon: <FaUserMd /> },

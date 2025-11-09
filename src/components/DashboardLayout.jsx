@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import '../styles/doctor-dashboard.scss'
 import { FaPills, FaCalendarAlt, FaClipboardList } from 'react-icons/fa'
 import { useNavigate, useLocation } from 'react-router-dom'
@@ -12,6 +12,37 @@ export default function DashboardLayout({ brand = 'MediChain', menuItems = [], a
   const [profileOpen, setProfileOpen] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
+  
+  // Get user info from session
+  const session = useMemo(() => {
+    try { return JSON.parse(localStorage.getItem('session') || 'null') } catch { return null }
+  }, [])
+  
+  const getUserDisplayName = () => {
+    if (!session?.user) return 'User'
+    
+    const user = session.user
+    const profile = user.profile || user
+    
+    // Try to get name from profile first, then fallback to user object
+    const name = profile?.name || user?.name
+    const email = profile?.email || user?.email
+    const role = session?.role || user?.role
+    
+    if (name) {
+      // Add appropriate prefix based on role
+      if (role === 'doctor' && !name.toLowerCase().startsWith('dr')) {
+        return `Dr. ${name}`
+      }
+      return name
+    }
+    
+    // Fallback to email if no name
+    if (email) return email
+    
+    // Final fallback
+    return role ? `${role.charAt(0).toUpperCase()}${role.slice(1)}` : 'User'
+  }
 
   const goToProfile = () => {
     // Decide profile route from current location (dashboard context)
@@ -24,9 +55,8 @@ export default function DashboardLayout({ brand = 'MediChain', menuItems = [], a
   }
 
   const doLogout = () => {
-    // Placeholder for logout logic (clear auth etc.)
-    // For now just navigate to home
-    navigate('/')
+    // Prefer centralized logout route (also clears auth)
+    navigate('/logout')
   }
 
   return (
@@ -55,7 +85,7 @@ export default function DashboardLayout({ brand = 'MediChain', menuItems = [], a
 
         <div className="profile" onClick={() => setProfileOpen(o => !o)}>
           <div className="avatar" aria-hidden />
-          {!collapsed && <span className="profile-name">Dr. Jane Doe ▾</span>}
+          {!collapsed && <span className="profile-name">{getUserDisplayName()} ▾</span>}
           {profileOpen && (
             <div className="dropdown" role="menu">
               <button onClick={() => { setProfileOpen(false); goToProfile(); }}>Profile</button>

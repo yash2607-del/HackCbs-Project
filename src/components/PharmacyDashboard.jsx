@@ -4,7 +4,8 @@ import '../styles/doctor-dashboard.scss';
 import Billing from '../pages/Billing/Billing.jsx';
 import ScanAddStock from '../pages/Scan/ScanAddStock.jsx';
 import Inventory from '../pages/Inventory/Inventory.jsx';
-import { FaCashRegister, FaBarcode, FaBoxes } from 'react-icons/fa';
+import { FaCashRegister, FaBarcode, FaBoxes, FaHistory } from 'react-icons/fa';
+import PatientHistory from '../pages/Pharmacy/PatientHistory.jsx';
 
 // Simple initial demo inventory
 const initialInventory = [
@@ -47,6 +48,7 @@ export default function PharmacyDashboard() {
     { key: 'billing', label: 'Billing', icon: <FaCashRegister /> },
     { key: 'scan', label: 'Scan & Stock', icon: <FaBarcode /> },
     { key: 'inventory', label: 'Inventory', icon: <FaBoxes /> },
+    { key: 'history', label: 'Patient History', icon: <FaHistory /> },
   ];
 
   return (
@@ -72,6 +74,11 @@ export default function PharmacyDashboard() {
         {active === 'inventory' && (
           <section className="inventory-pane">
             <Inventory inventory={inventory} addMedicine={addMedicine} />
+          </section>
+        )}
+        {active === 'history' && (
+          <section className="history-pane">
+            <PatientHistory />
           </section>
         )}
       </DashboardLayout>

@@ -8,6 +8,8 @@ import data from '../data/appointments.json';
 import MapPicker from './MapPicker.jsx';
 
 export default function DoctorDashboard() {
+  // Helper to build API URLs from env
+  const apiUrl = (path) => new URL(path, import.meta.env.VITE_API_BASE_URL || '/').toString()
   const [active, setActive] = useState('prescribe');
   const today = new Date();
   const [selectedDate, setSelectedDate] = useState(() => today.toISOString().slice(0,10));
@@ -151,7 +153,7 @@ export default function DoctorDashboard() {
                   if (!docLocation?.lat || !docLocation?.lng || !docLocation?.address) { setLocMsg('Pick a location first'); return }
                   try {
                     const token = localStorage.getItem('token')
-                    const res = await fetch('http://localhost:5000/api/auth/location', {
+                    const res = await fetch(apiUrl('api/auth/location'), {
                       method: 'PUT',
                       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                       body: JSON.stringify({ lat: docLocation.lat, lng: docLocation.lng, address: docLocation.address })
