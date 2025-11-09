@@ -12,7 +12,10 @@ const ROLE_LABELS = {
 
 export default function RoleAuth() {
   // Central API URL builder using Vite env
-  const apiUrl = (path) => new URL(path, import.meta.env.VITE_API_BASE_URL || '/').toString()
+  const apiUrl = (path) => {
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+    return `${baseUrl}/${path.replace(/^\//, '')}`;
+  }
   const { role } = useParams()
   const validRole = ['doctor', 'patient', 'pharmacy'].includes(role) ? role : null
   const [mode, setMode] = useState('login')

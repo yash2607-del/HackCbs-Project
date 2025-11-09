@@ -89,6 +89,15 @@ export default function PatientAppointments() {
     });
   };
 
+  const formatTime = (timeString) => {
+    if (!timeString) return '';
+    const [hours, minutes] = timeString.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour % 12 || 12;
+    return `${displayHour}:${minutes} ${ampm}`;
+  };
+
   return (
     <div className="patient-appointments-container">
       <div className="appointments-header">
@@ -140,7 +149,7 @@ export default function PatientAppointments() {
                         <strong>Date:</strong> {formatDate(appointment.appointmentDate)}
                       </div>
                       <div className="meta-item">
-                        <strong>Time:</strong> {appointment.appointmentTime}
+                        <strong>Time:</strong> {formatTime(appointment.appointmentTime)}
                       </div>
                       <div className="meta-item">
                         <strong>Reason:</strong> {appointment.reasonForVisit || 'Not specified'}
@@ -153,19 +162,20 @@ export default function PatientAppointments() {
                     </div>
                   </div>
                   <div className="appointment-actions">
-                    {appointment.phone && (
-                      <button 
-                        className="btn-call"
-                        onClick={() => handleCallClinic(appointment.phone)}
-                      >
-                        <FaPhoneAlt /> Call
-                      </button>
-                    )}
+                    <button 
+                      className="btn-call"
+                      onClick={() => handleCallClinic(appointment.phone || '')}
+                      disabled={!appointment.phone}
+                    >
+                      <FaPhoneAlt />
+                      <span>Call</span>
+                    </button>
                     <button 
                       className="btn-cancel"
                       onClick={() => handleCancel(appointment)}
                     >
-                      <FaTimes /> Cancel
+                      <FaTimes />
+                      <span>Cancel</span>
                     </button>
                   </div>
                 </div>
@@ -193,7 +203,7 @@ export default function PatientAppointments() {
                         <strong>Date:</strong> {formatDate(appointment.appointmentDate)}
                       </div>
                       <div className="meta-item">
-                        <strong>Time:</strong> {appointment.appointmentTime}
+                        <strong>Time:</strong> {formatTime(appointment.appointmentTime)}
                       </div>
                       <div className="meta-item">
                         <strong>Reason:</strong> {appointment.reasonForVisit || 'Not specified'}
@@ -206,19 +216,20 @@ export default function PatientAppointments() {
                     </div>
                   </div>
                   <div className="appointment-actions">
-                    {appointment.phone && (
-                      <button 
-                        className="btn-call"
-                        onClick={() => handleCallClinic(appointment.phone)}
-                      >
-                        <FaPhoneAlt /> Call
-                      </button>
-                    )}
+                    <button 
+                      className="btn-call"
+                      onClick={() => handleCallClinic(appointment.phone || '')}
+                      disabled={!appointment.phone}
+                    >
+                      <FaPhoneAlt />
+                      <span>Call</span>
+                    </button>
                     <button 
                       className="btn-cancel"
                       onClick={() => handleCancel(appointment)}
                     >
-                      <FaTimes /> Cancel
+                      <FaTimes />
+                      <span>Cancel</span>
                     </button>
                   </div>
                 </div>

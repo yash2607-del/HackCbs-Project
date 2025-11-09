@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import "./Appointment-form.css";
 
 export default function AppointmentForm() {
@@ -85,10 +87,22 @@ export default function AppointmentForm() {
       const patientId = session?.user?.id || session?.user?._id || session?.user?.email;
       
       if (!patientId) {
-        alert('Please login to book an appointment');
+        toast.error('Please login to book an appointment', {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
         setIsSubmitting(false);
         return;
       }
+
+      // Show processing toast
+      const processingToast = toast.loading('Processing your appointment...', {
+        position: "top-center",
+      });
 
       // Prepare appointment data
       const appointmentData = {
@@ -119,22 +133,52 @@ export default function AppointmentForm() {
       }
 
       console.log("Appointment created:", data.appointment);
-      alert(`Appointment booked successfully!\nAppointment ID: ${data.appointment._id}\nStatus: ${data.appointment.status}\n\nWe will contact you shortly to confirm.`);
+      
+      // Dismiss processing toast and show success
+      toast.dismiss(processingToast);
+      toast.success(
+        <div>
+          <strong>Appointment Scheduled Successfully</strong>
+          <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem' }}>
+            Your appointment has been scheduled with {formData.doctorName}
+          </p>
+          <p style={{ margin: '0.3rem 0 0 0', fontSize: '0.85rem', color: '#64748b' }}>
+            We will contact you shortly to confirm your appointment.
+          </p>
+        </div>,
+        {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        }
+      );
+      
       handleReset();
     } catch (error) {
-      console.error('Error booking appointment:', error);
-      alert(`Failed to book appointment: ${error.message}`);
+      console.error("Error booking appointment:", error);
+      toast.error(`Failed to book appointment: ${error.message}`, {
+        position: "top-right",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
   return (
     <div className="prescribe-form-page">
+      <ToastContainer />
       <div className="prescribe-form-container">
         {/* Header */}
         <div className="form-header">
           <h1>Book Appointment</h1>
-          <p>Create an appointment request. All fields optional, but doctor name recommended.</p>
+          <p>Schedule your appointment with a healthcare provider. Please fill in the required details below.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="prescribe-form">
