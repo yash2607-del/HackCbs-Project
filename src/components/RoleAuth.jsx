@@ -187,8 +187,11 @@ export default function RoleAuth() {
       if (!res.ok) { setMessage(data.error || 'Registration failed'); return }
       localStorage.setItem('token', data.token)
       localStorage.setItem('session', JSON.stringify({ role: data.user.role, user: data.user }))
-      setMessage(`${ROLE_LABELS[validRole]} registered successfully! Redirecting...`)
-      setTimeout(()=> navigate(`/profile/${validRole}`), 800)
+  setMessage(`${ROLE_LABELS[validRole]} registered successfully! Redirecting...`)
+  // After signup, take the user directly to their dashboard route
+  // (e.g. /doctor, /patient, /pharmacy) instead of the profile page.
+  const destRole = data?.user?.role || validRole
+  setTimeout(()=> navigate(`/${destRole}`), 800)
     } catch (err) {
       console.error(err)
       setMessage('Network error during registration')

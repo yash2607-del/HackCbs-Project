@@ -7,7 +7,8 @@ import PrescriptionTable from '../pages/Patient/Prescription-table.jsx'
 import PatientAppointments from '../pages/Patient/PatientAppointments.jsx'
 import ChatbotPopup from './chat/ChatbotPopup.jsx'
 import '../styles/chatbot-popup.scss'
-import { FaUserMd, FaCalendarPlus, FaCalendarCheck, FaPrescriptionBottle } from 'react-icons/fa'
+import { FaUserMd, FaCalendarPlus, FaCalendarCheck, FaPrescriptionBottle, FaSearch } from 'react-icons/fa'
+import SearchMedicine from '../pages/Patient/SearchMedicine.jsx'
 
 import { useLocation } from 'react-router-dom'
 
@@ -29,6 +30,7 @@ export default function PatientDashboard() {
 
   const menuItems = [
     { key: 'find-doctor', label: 'Find Doctor', icon: <FaUserMd /> },
+    { key: 'search-medicine', label: 'Search Medicine', icon: <FaSearch /> },
     { key: 'book', label: 'Book Appointment', icon: <FaCalendarPlus /> },
     { key: 'appointments', label: 'My Appointments', icon: <FaCalendarCheck /> },
     { key: 'prescriptions', label: 'My Prescriptions', icon: <FaPrescriptionBottle /> }
@@ -42,7 +44,8 @@ export default function PatientDashboard() {
         active={active}
         setActive={setActive}
       >
-        {active === 'find-doctor' && <FindADoctor />}
+    {active === 'find-doctor' && <FindADoctor />}
+    {active === 'search-medicine' && <SearchMedicine />}
   {active === 'book' && <AppointmentForm prefill={prefill} />}
         {active === 'appointments' && <PatientAppointments />}
         {active === 'prescriptions' && <PrescriptionTable />}

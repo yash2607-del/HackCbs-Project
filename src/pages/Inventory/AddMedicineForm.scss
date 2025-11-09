@@ -1,0 +1,234 @@
+@import '../../styles/colors';
+
+.add-medicine-form {
+  max-width: 720px;
+  margin: 0 auto;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  box-shadow: 0 10px 24px var(--shadow-light);
+  padding: 2rem;
+
+  .form-header {
+    margin-bottom: 1.5rem;
+    
+    h2 {
+      margin: 0 0 0.5rem 0;
+      color: var(--color-text-dark);
+      font-weight: 800;
+      font-size: 1.5rem;
+    }
+    
+    p {
+      margin: 0;
+      color: rgba(15, 23, 42, 0.7);
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+  }
+
+  .status-message {
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    border: 1px solid;
+    
+    &.success {
+      background: linear-gradient(135deg, #e8f9ef, var(--color-1));
+      border-color: var(--color-success);
+      color: #0e4d2e;
+    }
+    
+    &.error {
+      background: linear-gradient(135deg, #fef2f2, #fecaca);
+      border-color: var(--color-error);
+      color: #991b1b;
+    }
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+
+    @media (max-width: 600px) {
+      grid-template-columns: 1fr;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+
+      label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--color-text-dark);
+        opacity: 0.85;
+      }
+
+      input {
+        border: 1px solid var(--color-border);
+        border-radius: 10px;
+        padding: 0.75rem;
+        background: #fff;
+        color: var(--color-text-dark);
+        font-size: 0.875rem;
+        outline: none;
+        box-shadow: 0 2px 6px var(--shadow-light) inset;
+        transition: all 0.2s ease;
+
+        &:focus {
+          box-shadow: 0 0 0 2px var(--color-2);
+          border-color: var(--color-3);
+        }
+
+        &::placeholder {
+          color: rgba(15, 23, 42, 0.4);
+        }
+
+        &:disabled {
+          background: var(--color-bg-light);
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+      }
+
+      // Special styling for required fields
+      &:has(label:contains("*")) input {
+        border-left: 3px solid var(--color-3);
+      }
+    }
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-start;
+
+    @media (max-width: 480px) {
+      flex-direction: column;
+    }
+
+    .submit-btn {
+      background: linear-gradient(135deg, var(--color-3), var(--color-2));
+      color: #fff;
+      border: none;
+      padding: 0.875rem 1.5rem;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(0, 169, 255, 0.2);
+
+      &:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 169, 255, 0.3);
+      }
+
+      &:active:not(:disabled) {
+        transform: translateY(0);
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: 0 4px 12px rgba(0, 169, 255, 0.1);
+      }
+      .btn-spinner {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        border: 2px solid rgba(255,255,255,0.35);
+        border-top-color: #fff;
+        animation: spin 0.9s linear infinite;
+        vertical-align: middle;
+      }
+    }
+
+    .secondary-btn {
+      background: var(--color-bg-light);
+      color: var(--color-text-dark);
+      border: 1px solid var(--color-border);
+      padding: 0.875rem 1.5rem;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: var(--color-1);
+        border-color: var(--color-2);
+        transform: translateY(-1px);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+    }
+  }
+
+  // Loading state animation
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  .submit-btn:disabled {
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  // Responsive adjustments
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+    margin: 1rem;
+    
+    .form-header h2 {
+      font-size: 1.25rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    padding: 1rem;
+    
+    .form-grid {
+      gap: 0.75rem;
+    }
+    
+    .form-actions {
+      gap: 0.5rem;
+    }
+  }
+}
+
+// Style enhancement for better visual hierarchy
+.add-medicine-form .field:nth-child(1) {
+  // Make name field span full width on larger screens for emphasis
+  @media (min-width: 601px) {
+    grid-column: 1 / -1;
+  }
+}
+
+.add-medicine-form .field:nth-child(7) {
+  // Make quantity field stand out slightly
+  input {
+    font-weight: 600;
+    color: var(--color-3);
+  }
+}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const styles = {
   container: { display: 'grid', gridTemplateColumns: '1fr 420px', gap: 18, alignItems: 'start' },
@@ -10,9 +10,40 @@ const styles = {
 
 export default function Inventory({ inventory = [], addMedicine }) {
   const [query, setQuery] = useState('');
+  const [items, setItems] = useState(inventory);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  // Fetch inventory for current shop (pharmacy) using session's user id
+  useEffect(() => {
+    setItems(inventory);
+  }, [inventory]);
+
+  useEffect(() => {
+    const session = (() => { try { return JSON.parse(localStorage.getItem('session')||'null') } catch { return null } })();
+    const pharmacyId = session?.user?.id || session?.user?._id;
+    if (!pharmacyId) return; // not logged in or no id
+    const fetchInventory = async () => {
+      try {
+        setLoading(true);
+        setError('');
+        const base = import.meta.env.VITE_API_BASE_URL || '/';
+        const url = new URL(`api/inventory?pharmacyId=${encodeURIComponent(pharmacyId)}`, base).toString();
+        const res = await fetch(url);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data?.error || 'Failed to load inventory');
+        if (Array.isArray(data)) setItems(data);
+      } catch (e) {
+        setError(e.message || 'Failed to load inventory');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchInventory();
+  }, []);
 
   const q = (s = '') => String(s || '').toLowerCase();
-  const filtered = inventory.filter(it => {
+  const filtered = items.filter(it => {
     if (!query) return true;
     const term = q(query);
     return (
@@ -37,6 +68,13 @@ export default function Inventory({ inventory = [], addMedicine }) {
           <input placeholder="Search by name, code, batch, manufacturer, expiry..." value={query} onChange={(e) => setQuery(e.target.value)} style={{ padding: '8px 10px', border: '1px solid #dbe7f5', borderRadius: 8, width: 360 }} />
         </div>
       </div>
+
+      {loading && (
+        <div style={{ marginTop: 10, color: '#64748b' }}>Loading inventory…</div>
+      )}
+      {error && (
+        <div style={{ marginTop: 10, color: '#b91c1c' }}>{error}</div>
+      )}
 
       <div style={{ marginTop: 12, background: '#fff', border: '1px solid #e6eef8', borderRadius: 8, overflow: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 900 }}>
