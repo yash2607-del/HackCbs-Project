@@ -1,7 +1,8 @@
-MediChain — Blockchain-Enabled Healthcare Ecosystem
+🩺 MediChain — Blockchain-Enabled Healthcare Ecosystem
 Overview
 
-MediChain is a decentralized healthcare management platform that securely connects patients, doctors, and pharmacies within a unified ecosystem. The platform leverages blockchain technology to ensure the integrity of medical prescriptions and generative AI for intelligent symptom analysis and doctor recommendations.
+MediChain is a decentralized healthcare management platform that securely connects patients, doctors, and pharmacies within a unified ecosystem.
+The platform leverages blockchain technology to ensure the integrity of medical prescriptions and generative AI for intelligent symptom analysis and doctor recommendations.
 
 The system aims to eliminate prescription fraud, streamline medicine discovery, and promote interoperable, verifiable, and patient-centric healthcare data management.
 
@@ -12,7 +13,7 @@ Create and issue digital prescriptions stored immutably on the blockchain.
 
 Access patient medical histories and previous prescriptions.
 
-Ensure that every prescription is verifiable and tamper-proof through blockchain validation.
+Ensure every prescription is verifiable and tamper-proof through blockchain validation.
 
 Pharmacy
 
@@ -56,7 +57,7 @@ The patient describes symptoms through the chatbot interface.
 
 The generative AI model analyzes the input and classifies symptoms into medical specializations.
 
-The system retrieves and displays a list of relevant doctors based on specialization and location.
+The system retrieves and displays relevant doctors based on specialization and location.
 
 Medicine Search and Map Integration
 
