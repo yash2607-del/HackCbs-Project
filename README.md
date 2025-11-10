@@ -1,82 +1,71 @@
-🩺 MediChain — Blockchain-Enabled Healthcare Ecosystem
-Overview
+# 🩺 MediChain — Blockchain-Enabled Healthcare Ecosystem
 
-MediChain is a decentralized healthcare management platform that securely connects patients, doctors, and pharmacies within a unified ecosystem.
-The platform leverages blockchain technology to ensure the integrity of medical prescriptions and generative AI for intelligent symptom analysis and doctor recommendations.
+A secure, AI-powered, and blockchain-backed web application connecting patients, doctors, and pharmacies through verified prescriptions, intelligent health insights, and real-time medicine discovery.
 
-The system aims to eliminate prescription fraud, streamline medicine discovery, and promote interoperable, verifiable, and patient-centric healthcare data management.
+## 🚀 Overview
 
-Roles and Dashboards
-Doctor
+MediChain is a decentralized healthcare management platform that securely connects patients, doctors, and pharmacies within a unified, transparent ecosystem. It leverages blockchain technology for tamper-proof prescription storage and generative AI for intelligent symptom classification and doctor recommendations.
 
-Create and issue digital prescriptions stored immutably on the blockchain.
+The system aims to eliminate prescription fraud, simplify medicine discovery, and promote interoperable, verifiable, and patient-centric healthcare data management.
 
-Access patient medical histories and previous prescriptions.
+## 👥 Roles & Dashboards
 
-Ensure every prescription is verifiable and tamper-proof through blockchain validation.
+### 🧑‍⚕️ Doctor
+- Create and issue digital prescriptions stored immutably on the blockchain
+- Access patient medical histories and past prescriptions
+- Ensure all prescriptions are verifiable and tamper-proof through blockchain validation
 
-Pharmacy
+### 💊 Pharmacy
+- Verify prescriptions via blockchain before dispensing medication
+- Manage and update real-time medicine inventory through a centralized system
+- Generate billing records directly linked to verified transactions
 
-Verify prescriptions via blockchain before dispensing medication.
+### 🧍‍♂️ Patient
+- Access and review all verified prescriptions securely through a personal dashboard
+- Search for medicines and locate pharmacies with real-time availability using an interactive map
+- Interact with an AI-powered chatbot to describe symptoms and receive doctor recommendations based on AI-classified specialization
 
-Manage and update real-time medicine inventory within a shared database.
+## 🔑 Core Features
 
-Generate billing records directly linked to verified transactions.
+| Feature | Description |
+|---------|-------------|
+| **Blockchain-Powered Prescriptions** | Each prescription is hashed and stored on-chain to ensure authenticity and traceability |
+| **Pharmacy Inventory Management** | Pharmacies can add, update, and track medicine stock securely within the platform |
+| **Medicine Locator Map** | Patients can search for medicines and view pharmacies with availability in their vicinity |
+| **AI Chatbot** | A generative AI assistant interprets symptoms and recommends appropriate medical specialists |
+| **Role-Based Dashboards** | Provides secure authentication and customized dashboards for doctors, pharmacies, and patients |
 
-Patient
 
-Access and review all verified prescriptions on a secure dashboard.
+## 🌐 Blockchain Prescription Flow
 
-Search for medicines and locate pharmacies with real-time availability using an interactive map.
+1. Doctor creates a prescription formatted as a JSON object
+2. The prescription is hashed and stored on the blockchain, generating a unique transaction hash
+3. The transaction hash is stored in the backend database, linked to the relevant doctor, patient, and pharmacy IDs
+4. Pharmacy verifies the prescription hash on the blockchain before dispensing
+5. Patient views all verified prescriptions through their secure dashboard
 
-Communicate with an AI-powered chatbot that interprets symptoms and recommends appropriate doctor specializations.
+## 💬 AI Chatbot Workflow
 
-Core Features
-Feature	Description
-Blockchain-Powered Prescriptions	Each prescription is hashed and stored on-chain to ensure authenticity and traceability.
-Pharmacy Inventory Management	Pharmacies can add, update, and track medicine stock through a centralized, secure interface.
-Medicine Locator Map	Patients can search for medicines and view pharmacies with availability in their vicinity.
-AI Chatbot	A generative AI assistant classifies symptoms and recommends suitable medical specialists.
-Role-Based Dashboards	Provides secure authentication and tailored dashboards for doctors, pharmacies, and patients.
-Verified Transactions	Ensures that all prescription-related transactions are validated via blockchain before fulfillment.
-Blockchain Prescription Flow
+1. Patient describes symptoms through the chatbot interface
+2. The AI model analyzes input and classifies symptoms into medical specializations
+3. The system retrieves and displays a list of relevant doctors based on specialization and location
 
-The doctor creates a prescription, which is formatted as a JSON object.
+## 🗺️ Medicine Search & Map Integration
 
-The prescription is hashed and stored on the blockchain, generating a unique transaction hash.
+1. Pharmacies update available medicines in real time
+2. Patients search for specific medicines using the integrated search feature
+3. The platform queries participating pharmacies, filtering results by geolocation
+4. Nearby pharmacies are displayed on an interactive map with directions and availability details
 
-The transaction hash is saved in the backend database, linked to the relevant doctor, patient, and pharmacy identifiers.
+## 🔮 Future Enhancements
 
-The pharmacy retrieves and verifies the prescription hash from the blockchain before dispensing medication.
+- 📱 Mobile application (React Native / Flutter)
+- 🧾 Integration with insurance providers for automated e-claim verification
+- 🤖 AI-based prescription conflict detection
+- 🗣️ Voice-enabled chatbot for improved accessibility
+- 🏥 Integration with telemedicine APIs for online consultations
 
-Patients can view all verified prescriptions via their secure dashboards.
 
-AI Chatbot Workflow
+## 📄 License
 
-The patient describes symptoms through the chatbot interface.
-
-The generative AI model analyzes the input and classifies symptoms into medical specializations.
-
-The system retrieves and displays relevant doctors based on specialization and location.
-
-Medicine Search and Map Integration
-
-Pharmacies regularly update available medicines in the system.
-
-Patients can search for a specific medicine name.
-
-The platform queries all participating pharmacies, filtering results by geolocation.
-
-Nearby pharmacies are displayed on an interactive map with detailed information and directions.
-
-Future Enhancements
-
-Development of a mobile application (React Native or Flutter).
-
-Integration with insurance providers for automated e-claim verification.
-
-Implementation of AI-based prescription conflict detection.
-
-Addition of voice-enabled chatbot functionality for improved accessibility.
-
-Integration with telemedicine APIs to enable online consultations.
+This project is licensed under the MIT License.
